@@ -1,0 +1,62 @@
+program: src/train.py
+method: bayes # can be changed to grid
+metric:
+  goal: maximize
+  name: val_acc
+parameters:
+  dataset:
+    value: "cora"
+  reduction_rate: 
+    value: 0.013
+  atol:
+    # for transductive datasets (cora, pubmed, citeseer and ogbn-arxiv), 1e-6 is
+    # enough to achieve good results, but for inductive (reddit and flickr)
+    # 1e-7 can improve the performance further. you can either search them
+    # or keep it fixed like shown below.
+    value: "1e-6"
+  gnn:
+    value: "gcn"
+  gpu_id:
+    value: 6
+  gnn_epochs:
+    value: 600
+  hidden_dim:
+    value: 256 # GNN hidden dimension
+  dropout:
+    value: 0.0 # GNN dropout
+  use_kmeans:
+    # kmeans is better for smaller graphs, but on larger graphs not using it is
+    # fine, so you can either sweep the best option or just use one fixed option
+    # like we did on the experiments by setting value: 1
+    values: [0, 1]
+  kmeans_redo:
+    value: 1 # we only tried 1 run, but up to 10 is fine
+  kmeans_iter:
+    value: 20
+  rec_epochs:
+    value: 200
+  add_ratio:
+    values: [.05, .1, .15, .2] # percentage of random edges added to create tensor
+  drop_ratio:
+    values: [.05, .1, .15, .2] # percentage of edges randomly added to create tensor
+  weighted:
+    # this allows you to choose if you want to use the core tensor values as
+    # edge weights or not. the results varies from datasets. we set this to 0
+    # but sweeping is fine as well, but takes longer.
+    values: [0, 1]
+  lr_rec:
+    values: [.1, .01, .001, .0001]
+  lr_gnn:
+    values: [.1, .01, .001, .0001]
+  wd:
+    values: [.0, .01, .001, .0001]
+  wd_gnn:
+    values: [.0, .01, .001, .0001]
+  R:
+    # number of tensor slices. when set to 1, the results is a matrix
+    # and the process becomes a matrix trifactorization
+    values: [1, 2, 3, 4, 5]
+  bsz:
+    # decomposition batch size. we used 1024 in our final experiments.
+    values: [256, 512, 1024]
+    #values: [1024]
